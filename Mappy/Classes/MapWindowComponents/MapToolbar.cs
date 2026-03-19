@@ -15,21 +15,19 @@ using MapType = Lumina.Excel.Sheets.MapType;
 
 namespace Mappy.Classes.MapWindowComponents;
 
-public unsafe class MapToolbar
-{
-    public void Draw()
-    {
+public unsafe class MapToolbar {
+    public void Draw() {
         var toolbarSize = new Vector2(ImGui.GetContentRegionMax().X, 33.0f * ImGuiHelpers.GlobalScale);
 
-        using var childBackgroundStyle = ImRaii.PushColor(ImGuiCol.ChildBg, Vector4.Zero with { W = System.SystemConfig.ToolbarFade });
+        using var childBackgroundStyle =
+            ImRaii.PushColor(ImGuiCol.ChildBg, Vector4.Zero with { W = System.SystemConfig.ToolbarFade });
         using var toolbarChild = ImRaii.Child("toolbar_child", toolbarSize);
         if (!toolbarChild) return;
 
         ImGui.SetCursorPos(new Vector2(5.0f, 5.0f));
 
         if (MappyGuiTweaks.IconButton(FontAwesomeIcon.ArrowUp, "up", "Open Parent Map")) {
-            var valueArgs = new AtkValue
-            {
+            var valueArgs = new AtkValue {
                 Type = ValueType.Int, Int = 5,
             };
 
@@ -47,7 +45,8 @@ public unsafe class MapToolbar
 
         ImGui.SameLine();
 
-        using (var _ = ImRaii.PushColor(ImGuiCol.Button, ImGui.GetStyle().GetColor(ImGuiCol.ButtonActive), System.SystemConfig.FollowPlayer)) {
+        using (var _ = ImRaii.PushColor(ImGuiCol.Button, ImGui.GetStyle().GetColor(ImGuiCol.ButtonActive),
+                   System.SystemConfig.FollowPlayer)) {
             if (MappyGuiTweaks.IconButton(FontAwesomeIcon.LocationArrow, "follow", "Toggle Follow Player")) {
                 System.SystemConfig.FollowPlayer = !System.SystemConfig.FollowPlayer;
 
@@ -59,7 +58,8 @@ public unsafe class MapToolbar
 
         ImGui.SameLine();
 
-        if (MappyGuiTweaks.IconButton(FontAwesomeIcon.ArrowsToCircle, "centerPlayer", "Center on Player") && Service.ObjectTable.LocalPlayer is not null) {
+        if (MappyGuiTweaks.IconButton(FontAwesomeIcon.ArrowsToCircle, "centerPlayer", "Center on Player") &&
+            Service.ObjectTable.LocalPlayer is not null) {
             // Don't center on player if we are already following the player.
             if (!System.SystemConfig.FollowPlayer) {
                 System.IntegrationsController.OpenOccupiedMap();
@@ -77,10 +77,8 @@ public unsafe class MapToolbar
         ImGui.SameLine();
 
         if (MappyGuiTweaks.IconButton(FontAwesomeIcon.Search, "search", "Search for Map")) {
-            System.WindowManager.AddWindow(new MapSelectionWindow
-            {
-                SingleSelectionCallback = selection =>
-                {
+            System.WindowManager.AddWindow(new MapSelectionWindow {
+                SingleSelectionCallback = selection => {
                     if (selection?.Map != null) {
                         if (AgentMap.Instance()->SelectedMapId != selection.Map.RowId) {
                             System.IntegrationsController.OpenMap(selection.Map.RowId);
@@ -95,10 +93,11 @@ public unsafe class MapToolbar
             }, WindowFlags.OpenImmediately | WindowFlags.RequireLoggedIn);
         }
 
-        var offset = System.SystemConfig.HideWindowFrame ? 50.0f : 25.0f;
-
+        var offset = 17f * ImGuiHelpers.GlobalScale + ImGui.GetStyle().FramePadding.X * 2;
+        if (System.SystemConfig.HideWindowFrame)
+            offset *= 2.0f;
         ImGui.SameLine();
-        ImGui.SetCursorPosX(ImGui.GetContentRegionMax().X - offset * ImGuiHelpers.GlobalScale - ImGui.GetStyle().ItemSpacing.X);
+        ImGui.SetCursorPosX(ImGui.GetContentRegionMax().X - offset - ImGui.GetStyle().ItemSpacing.X * 2);
 
         if (MappyGuiTweaks.IconButton(FontAwesomeIcon.Cog, "settings", "Open Settings")) {
             System.ConfigWindow.UnCollapseOrShow();
@@ -109,14 +108,12 @@ public unsafe class MapToolbar
 
         ImGui.SameLine();
 
-        if (MappyGuiTweaks.IconButton(FontAwesomeIcon.Times, "closeMap", "Close Map"))
-        {
+        if (MappyGuiTweaks.IconButton(FontAwesomeIcon.Times, "closeMap", "Close Map")) {
             System.MapWindow.Close();
         }
     }
 
-    private void DrawLayersContextMenu()
-    {
+    private void DrawLayersContextMenu() {
         using var contextMenu = ImRaii.Popup("Mappy_Show_Layers");
         if (!contextMenu) return;
 
@@ -151,7 +148,8 @@ public unsafe class MapToolbar
             }
 
             foreach (var layer in layers) {
-                if (ImGui.MenuItem(layer.PlaceNameSub.Value.Name.ExtractText(), "", AgentMap.Instance()->SelectedMapId == layer.RowId)) {
+                if (ImGui.MenuItem(layer.PlaceNameSub.Value.Name.ExtractText(), "",
+                        AgentMap.Instance()->SelectedMapId == layer.RowId)) {
                     System.IntegrationsController.OpenMap(layer.RowId);
                     System.SystemConfig.FollowPlayer = false;
                     System.MapRenderer.DrawOffset = Vector2.Zero;
