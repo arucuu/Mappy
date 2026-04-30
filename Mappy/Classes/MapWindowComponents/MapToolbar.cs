@@ -6,17 +6,17 @@ using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
-using FFXIVClientStructs.FFXIV.Component.GUI;
+using FFXIVClientStructs.Interop;
 using KamiLib.Extensions;
 using KamiLib.Window;
 using Lumina.Excel.Sheets;
 using Mappy.Windows;
-using MapType = Lumina.Excel.Sheets.MapType;
 
 namespace Mappy.Classes.MapWindowComponents;
 
 public unsafe class MapToolbar {
     public void Draw() {
+        var borderPadding = 2.5f;
         var toolbarSize = new Vector2(ImGui.GetContentRegionMax().X, 33.0f * ImGuiHelpers.GlobalScale);
 
         using var childBackgroundStyle =
@@ -24,15 +24,14 @@ public unsafe class MapToolbar {
         using var toolbarChild = ImRaii.Child("toolbar_child", toolbarSize);
         if (!toolbarChild) return;
 
-        ImGui.SetCursorPos(new Vector2(5.0f, 5.0f));
+        ImGui.SetCursorPos(new Vector2(borderPadding, borderPadding) * ImGuiHelpers.GlobalScale);
 
         if (MappyGuiTweaks.IconButton(FontAwesomeIcon.ArrowUp, "up", "Open Parent Map")) {
-            var valueArgs = new AtkValue {
-                Type = ValueType.Int, Int = 5,
-            };
+            using var valueArgs = new RentedAtkValues(1);
+            valueArgs[0].SetInt(5);
 
-            var returnValue = new AtkValue();
-            AgentMap.Instance()->ReceiveEvent(&returnValue, &valueArgs, 1, 0);
+            using var returnValue = new RentedAtkValues(1);
+            AgentMap.Instance()->ReceiveEvent(returnValue, valueArgs, 1, 0);
         }
 
         ImGui.SameLine();
@@ -97,7 +96,8 @@ public unsafe class MapToolbar {
         if (System.SystemConfig.HideWindowFrame)
             offset *= 2.0f;
         ImGui.SameLine();
-        ImGui.SetCursorPosX(ImGui.GetContentRegionMax().X - offset - ImGui.GetStyle().ItemSpacing.X * 2);
+        ImGui.SetCursorPosX(ImGui.GetContentRegionMax().X - offset - ImGui.GetStyle().ItemSpacing.X -
+                            ImGuiHelpers.GlobalScale * borderPadding);
 
         if (MappyGuiTweaks.IconButton(FontAwesomeIcon.Cog, "settings", "Open Settings")) {
             System.ConfigWindow.UnCollapseOrShow();

@@ -45,12 +45,12 @@ public partial class MapRenderer
                 Scale = Scale,
                 IconId = obj.ObjectKind switch
                 {
-                    ObjectKind.Player when GroupManager.Instance()->MainGroup.MemberCount is 0 && System.SystemConfig.ShowPlayers => 60421,
-                    ObjectKind.Player when System.SystemConfig.ShowPlayers => 60444,
+                    ObjectKind.Pc when GroupManager.Instance()->MainGroup.MemberCount is 0 && System.SystemConfig.ShowPlayers => 60421,
+                    ObjectKind.Pc when System.SystemConfig.ShowPlayers => 60444,
                     ObjectKind.BattleNpc when IsBoss(obj) && obj.TargetObject is null => 60402,
                     ObjectKind.BattleNpc when IsBoss(obj) && obj.TargetObject is not null => 60401,
-                    ObjectKind.BattleNpc when obj is { SubKind: (int)BattleNpcSubKind.Enemy, TargetObject: not null } => 60422,
-                    ObjectKind.BattleNpc when obj is { SubKind: (int)BattleNpcSubKind.Enemy, TargetObject: null } => 60424,
+                    ObjectKind.BattleNpc when obj is { SubKind: (int)BattleNpcSubKind.Combatant, TargetObject: not null } => 60422,
+                    ObjectKind.BattleNpc when obj is { SubKind: (int)BattleNpcSubKind.Combatant, TargetObject: null } => 60424,
                     ObjectKind.BattleNpc when obj.SubKind == (int)BattleNpcSubKind.Pet => 60961,
                     ObjectKind.Treasure => 60003,
                     ObjectKind.GatheringPoint => System.GatheringPointIconCache.GetValue(obj.BaseId),

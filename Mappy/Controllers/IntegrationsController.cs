@@ -299,7 +299,7 @@ public unsafe class IntegrationsController : IDisposable
     }
 
     private static bool IsNamePlateAddonVisible() =>
-        !RaptureAtkUnitManager.Instance()->UiFlags.HasFlag(UIModule.UiFlags.Nameplates);
+        !RaptureAtkUnitManager.Instance()->UiFlags.HasFlag(UiFlags.Nameplates);
 
     private uint? GetMapIdForQuest(OpenMapInfo* mapInfo)
     {
