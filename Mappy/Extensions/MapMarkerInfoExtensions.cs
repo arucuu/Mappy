@@ -62,6 +62,9 @@ public static class MapMarkerInfoExtensions {
 
     private static void OnMarkerClicked(ref MapMarkerInfo marker) {
         switch (marker.DataType) {
+            case 0: // 特殊マーカー（クレセントアイル等の簡易魔道通路、住宅街サブAethernet等）
+                Mappy.Integrations.LifestreamAethernetHandler.TryHandleSpecialMarker(ref marker);
+                break;
             case 1: // MapLinkMarker
                 OnMapLinkMarkerClicked(ref marker);
                 break;
@@ -94,10 +97,16 @@ public static class MapMarkerInfoExtensions {
     private static void OnAetheryteClicked(ref MapMarkerInfo marker) {
         if (marker.DataKey is 0) return;
 
+        // Lifestreamが利用可能かつ同じ街内なら、Aethernet経由で移動する（FF14テレポは同エリア内では使えないため）
+        if (Mappy.Integrations.LifestreamAethernetHandler.TryHandleAetheryte(ref marker)) return;
+
         System.Teleporter.Teleport(marker.DataKey);
     }
 
     private static void OnAethernetClicked(ref MapMarkerInfo marker) {
+        // Lifestreamが利用可能ならAethernet転送をそちらに委譲する（範囲外/別エリアの場合は何もしない）
+        if (Mappy.Integrations.LifestreamAethernetHandler.TryHandleAethernet(ref marker)) return;
+
         var aetheryte = GetAetheryteForAethernet(marker.DataKey);
         if (aetheryte is null) return;
         if (aetheryte.Value.RowId is 0) return;
