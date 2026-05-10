@@ -14,18 +14,16 @@ using MarkerInfo = Mappy.Classes.MarkerInfo;
 
 namespace Mappy.Extensions;
 
-public static class MapMarkerInfoExtensions
-{
-    public static void Draw(this MapMarkerInfo marker, Vector2 offset, float scale)
-    {
+public static class MapMarkerInfoExtensions {
+    public static void Draw(this MapMarkerInfo marker, Vector2 offset, float scale) {
         var tooltipText = marker.MapMarker.Subtext.AsDalamudSeString();
 
-        var markerInfo = new MarkerInfo
-        {
+        var markerInfo = new MarkerInfo {
             // Divide by 16, as it seems they use a fixed scalar
             // Add 1024 * scale, to offset from top-left, to center-based coordinate
             // Add offset for drawing relative to map when it's moved around
-            Position = new Vector2(marker.MapMarker.X, marker.MapMarker.Y) / 16.0f * scale + DrawHelpers.GetMapCenterOffsetVector() * scale,
+            Position = new Vector2(marker.MapMarker.X, marker.MapMarker.Y) / 16.0f * scale +
+                       DrawHelpers.GetMapCenterOffsetVector() * scale,
             Offset = offset,
             Scale = scale,
             Radius = marker.MapMarker.Scale,
@@ -44,12 +42,10 @@ public static class MapMarkerInfoExtensions
         }
     }
 
-    private static void TryDrawText(MapMarkerInfo marker, MarkerInfo markerInfo, SeString tooltipText)
-    {
+    private static void TryDrawText(MapMarkerInfo marker, MarkerInfo markerInfo, SeString tooltipText) {
         if (!System.SystemConfig.ShowTextLabels) return;
 
-        var textTypeScalar = marker.MapMarker.SubtextStyle switch
-        {
+        var textTypeScalar = marker.MapMarker.SubtextStyle switch {
             1 => System.SystemConfig.LargeAreaTextScale,
             _ => System.SystemConfig.SmallAreaTextScale,
         };
@@ -64,8 +60,7 @@ public static class MapMarkerInfoExtensions
         DrawHelpers.DrawText(markerInfo, tooltipText);
     }
 
-    private static void OnMarkerClicked(ref MapMarkerInfo marker)
-    {
+    private static void OnMarkerClicked(ref MapMarkerInfo marker) {
         switch (marker.DataType) {
             case 1: // MapLinkMarker
                 OnMapLinkMarkerClicked(ref marker);
@@ -85,28 +80,24 @@ public static class MapMarkerInfoExtensions
         }
     }
 
-    private static void OnMapLinkMarkerClicked(ref MapMarkerInfo marker)
-    {
+    private static void OnMapLinkMarkerClicked(ref MapMarkerInfo marker) {
         if (marker.DataKey is 0) return;
         if (DrawHelpers.IsDisallowedIcon(marker.MapMarker.IconId)) return;
 
         System.IntegrationsController.OpenMap(marker.DataKey);
     }
 
-    private static void OnInstanceLinkClicked(ref MapMarkerInfo _)
-    {
+    private static void OnInstanceLinkClicked(ref MapMarkerInfo _) {
         // Might consider opening contents finder to this duty, maybe
     }
 
-    private static void OnAetheryteClicked(ref MapMarkerInfo marker)
-    {
+    private static void OnAetheryteClicked(ref MapMarkerInfo marker) {
         if (marker.DataKey is 0) return;
 
         System.Teleporter.Teleport(marker.DataKey);
     }
 
-    private static void OnAethernetClicked(ref MapMarkerInfo marker)
-    {
+    private static void OnAethernetClicked(ref MapMarkerInfo marker) {
         var aetheryte = GetAetheryteForAethernet(marker.DataKey);
         if (aetheryte is null) return;
         if (aetheryte.Value.RowId is 0) return;
@@ -114,10 +105,8 @@ public static class MapMarkerInfoExtensions
         System.Teleporter.Teleport(aetheryte.Value.RowId);
     }
 
-    private static string GetTooltip(ref MapMarkerInfo marker)
-    {
-        switch (marker.DataType)
-        {
+    private static string GetTooltip(ref MapMarkerInfo marker) {
+        switch (marker.DataType) {
             case 1: // MapLinkMarker
                 return GetMapLinkTooltip(ref marker);
 
@@ -134,8 +123,7 @@ public static class MapMarkerInfoExtensions
         return string.Empty;
     }
 
-    private static string GetMapLinkTooltip(ref MapMarkerInfo marker)
-    {
+    private static string GetMapLinkTooltip(ref MapMarkerInfo marker) {
         if (marker.DataKey is 0) return string.Empty;
         if (DrawHelpers.IsDisallowedIcon(marker.MapMarker.IconId)) return string.Empty;
 
@@ -145,13 +133,11 @@ public static class MapMarkerInfoExtensions
         return $"Open Map {mapPlaceName}";
     }
 
-    private static string GetInstanceLinkTooltip(ref MapMarkerInfo marker)
-    {
+    private static string GetInstanceLinkTooltip(ref MapMarkerInfo marker) {
         return $"Instance Link {marker.DataKey}";
     }
 
-    private static string GetAetheryteTooltip(ref MapMarkerInfo marker)
-    {
+    private static string GetAetheryteTooltip(ref MapMarkerInfo marker) {
         if (marker.DataKey is 0) return string.Empty;
 
         var aetheryteTeleportCost = GetAetheryteTeleportGilCost(marker.DataKey);
@@ -164,8 +150,7 @@ public static class MapMarkerInfoExtensions
         return $"Teleport to {aetherytePlaceName} {aetheryteCost}";
     }
 
-    private static string GetAethernetTooltip(ref MapMarkerInfo marker)
-    {
+    private static string GetAethernetTooltip(ref MapMarkerInfo marker) {
         if (marker.DataKey is 0) return string.Empty;
 
         var aetheryte = GetAetheryteForAethernet(marker.DataKey);
@@ -177,11 +162,14 @@ public static class MapMarkerInfoExtensions
         return $"Teleport to {aetherytePlaceName} {GetAetheryteTeleportCost(aetheryte.Value.RowId)}";
     }
 
-    private static Aetheryte? GetAetheryteForAethernet(uint aethernetKey) => System.AetheryteAethernetCache.GetValue(aethernetKey);
+    private static Aetheryte? GetAetheryteForAethernet(uint aethernetKey) =>
+        System.AetheryteAethernetCache.GetValue(aethernetKey);
 
-    private static uint? GetAetheryteTeleportGilCost(uint aethernetKey) => Service.AetheryteList.FirstOrDefault(entry => entry.AetheryteId == aethernetKey)?.GilCost;
+    private static uint? GetAetheryteTeleportGilCost(uint aethernetKey) => Service.AetheryteList
+        .FirstOrDefault(entry => entry.AetheryteId == aethernetKey)?.GilCost;
 
-    private static string GetAetheryteTeleportCost(uint targetDataKey) => $"({GetAetheryteTeleportGilCost(targetDataKey) ?? 0:n0} {SeIconChar.Gil.ToIconChar()})";
+    private static string GetAetheryteTeleportCost(uint targetDataKey) =>
+        $"({GetAetheryteTeleportGilCost(targetDataKey) ?? 0:n0} {SeIconChar.Gil.ToIconChar()})";
 
     private static Func<string> GetMarkerPrimaryTooltip(MapMarkerInfo marker, SeString tooltipText)
     {

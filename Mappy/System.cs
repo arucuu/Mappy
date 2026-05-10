@@ -12,8 +12,7 @@ using Mappy.Windows;
 namespace Mappy;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-public static class System
-{
+public static class System {
     public static SystemConfig SystemConfig { get; set; }
     public static IconConfig IconConfig { get; set; }
     public static FlagConfig FlagConfig { get; set; }
@@ -27,11 +26,11 @@ public static class System
     public static CommandManager CommandManager { get; set; }
     public static Teleporter Teleporter { get; set; }
 
-    public static List<ModuleBase> Modules { get; set; } =
-    [
+    public static List<ModuleBase> Modules { get; set; } = [
         new TripleTriadModule(),
         new FateModule(),
         new StellarModule(),
+        new PublicContent()
     ];
 
     public static TooltipCache TooltipCache { get; set; } = new();
