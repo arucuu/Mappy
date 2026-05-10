@@ -36,6 +36,8 @@ public class MapWindow : Window
     private readonly MapCoordinateBar mapCoordinateBar = new();
     private readonly MapContextMenu mapContextMenu = new();
 
+    private Vector2 originalWindowPadding;
+
     public MapWindow() : base("###MappyMapWindow", new Vector2(400.0f, 250.0f))
     {
         UpdateTitle();
@@ -49,6 +51,7 @@ public class MapWindow : Window
 
     public override void PreDraw()
     {
+        originalWindowPadding = ImGui.GetStyle().WindowPadding;
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
     }
 
@@ -124,17 +127,20 @@ public class MapWindow : Window
                 return;
             }
 
-            var p = System.SystemConfig.MapWindowPadding;
-            if (p > 0.0f) {
-                var clipMin = ImGui.GetWindowPos() + new Vector2(p, p);
-                var clipMax = ImGui.GetWindowPos() + ImGui.GetWindowSize() - new Vector2(p, p) + new Vector2(1, 1);
-                ImGui.GetWindowDrawList().PushClipRect(clipMin, clipMax, false);
-            }
-
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, originalWindowPadding);
             DrawMapElements();
+            ImGui.PopStyleVar();
 
-            if (p > 0.0f) {
-                ImGui.GetWindowDrawList().PopClipRect();
+            var p = System.SystemConfig.MapWindowPadding;
+            if (p > 0.0f && !Flags.HasFlag(ImGuiWindowFlags.NoBackground)) {
+                var winPos = ImGui.GetWindowPos();
+                var winSize = ImGui.GetWindowSize();
+                var bgColor = ImGui.GetColorU32(ImGuiCol.WindowBg);
+                var dl = ImGui.GetWindowDrawList();
+                dl.AddRectFilled(winPos,                                    winPos + new Vector2(winSize.X, p),    bgColor);
+                dl.AddRectFilled(winPos + new Vector2(0, winSize.Y - p),    winPos + winSize,                      bgColor);
+                dl.AddRectFilled(winPos,                                    winPos + new Vector2(p, winSize.Y),    bgColor);
+                dl.AddRectFilled(winPos + new Vector2(winSize.X - p, 0),    winPos + winSize,                      bgColor);
             }
 
             // Reset Draw Position for Overlay Extras
