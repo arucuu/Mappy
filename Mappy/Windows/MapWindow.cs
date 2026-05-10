@@ -42,9 +42,20 @@ public class MapWindow : Window
 
         DisableWindowSounds = true;
         RegisterCommands();
+        Flags |= ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
     }
 
     public override bool DrawConditions() => IntegrationsController.ShouldShowMap();
+
+    public override void PreDraw()
+    {
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
+    }
+
+    public override void PostDraw()
+    {
+        ImGui.PopStyleVar();
+    }
 
     public override unsafe void PreOpenCheck()
     {
@@ -105,6 +116,7 @@ public class MapWindow : Window
 
         MapDrawOffset = ImGui.GetCursorScreenPos();
         using var fade = ImRaii.PushStyle(ImGuiStyleVar.Alpha, System.SystemConfig.FadePercent, ShouldFade());
+        using var noChildPad = ImRaii.PushStyle(ImGuiStyleVar.WindowPadding, Vector2.Zero);
         using (var renderChild = ImRaii.Child("render_child", ImGui.GetContentRegionAvail(), false, ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoScrollbar)) {
             if (!renderChild) return;
             if (!System.SystemConfig.AcceptedSpoilerWarning) {
@@ -112,7 +124,18 @@ public class MapWindow : Window
                 return;
             }
 
+            var p = System.SystemConfig.MapWindowPadding;
+            if (p > 0.0f) {
+                var clipMin = ImGui.GetWindowPos() + new Vector2(p, p);
+                var clipMax = ImGui.GetWindowPos() + ImGui.GetWindowSize() - new Vector2(p, p) + new Vector2(1, 1);
+                ImGui.GetWindowDrawList().PushClipRect(clipMin, clipMax, false);
+            }
+
             DrawMapElements();
+
+            if (p > 0.0f) {
+                ImGui.GetWindowDrawList().PopClipRect();
+            }
 
             // Reset Draw Position for Overlay Extras
             ImGui.SetCursorPos(Vector2.Zero);
@@ -288,6 +311,8 @@ public class MapWindow : Window
             System.SystemConfig.FollowPlayer = false;
             System.MapRenderer.DrawOffset = Vector2.Zero;
         }
+
+        Flags |= ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
     }
 
     private void UpdateSizePosition()

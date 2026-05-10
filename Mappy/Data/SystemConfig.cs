@@ -100,6 +100,8 @@ public class SystemConfig : CharacterConfiguration
 
     public bool SuppressNativeMapOpenSound = true;
 
+    public float MapWindowPadding = 0.0f;
+
     // Do not persist this setting
     [JsonIgnore]
     public bool DebugMode = false;

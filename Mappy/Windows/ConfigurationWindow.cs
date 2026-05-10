@@ -167,6 +167,10 @@ public class StyleOptionsTab : ITabItem
             configChanged |= ImGui.Checkbox("Hide Window Frame", ref System.SystemConfig.HideWindowFrame);
             configChanged |= ImGui.Checkbox("Hide Window Background", ref System.SystemConfig.HideWindowBackground);
             configChanged |= ImGui.Checkbox("Enable Shift + Drag to Move Window Frame", ref System.SystemConfig.EnableShiftDragMove);
+
+            ImGuiHelpers.ScaledDummy(5.0f);
+
+            configChanged |= ImGui.SliderFloat("Map Border Padding", ref System.SystemConfig.MapWindowPadding, 0.0f, 20.0f);
         }
 
         ImGuiTweaks.Header("Window Hiding");

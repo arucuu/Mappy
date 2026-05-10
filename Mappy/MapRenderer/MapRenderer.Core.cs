@@ -59,7 +59,7 @@ public unsafe partial class MapRenderer : IDisposable
 
     private void UpdateDrawOffset()
     {
-        var childCenterOffset = ImGui.GetContentRegionAvail() / 2.0f;
+        var childCenterOffset = ImGui.GetWindowSize() / 2.0f;
         var mapCenterOffset = new Vector2(1024.0f, 1024.0f) * Scale;
 
         DrawPosition = childCenterOffset - mapCenterOffset + DrawOffset * Scale;
