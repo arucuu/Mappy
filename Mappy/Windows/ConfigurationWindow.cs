@@ -170,7 +170,11 @@ public class StyleOptionsTab : ITabItem
 
             ImGuiHelpers.ScaledDummy(5.0f);
 
-            configChanged |= ImGui.SliderFloat("Map Border Padding", ref System.SystemConfig.MapWindowPadding, 0.0f, 20.0f);
+            var mapWindowPadding = (int)System.SystemConfig.MapWindowPadding;
+            if (ImGui.SliderInt("Map Border Padding", ref mapWindowPadding, 0, 20)) {
+                System.SystemConfig.MapWindowPadding = mapWindowPadding;
+                configChanged = true;
+            }
         }
 
         ImGuiTweaks.Header("Window Hiding");
